@@ -7,7 +7,7 @@
 int main() {
 
     Lista minhaLista;
-    inicializarLista(&minhaLista); 
+    inicializarlista(&minhaLista); 
 
     int opcao;
 
@@ -20,7 +20,7 @@ int main() {
         printf("--------------------------------------------\n");
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
-
+            
         switch(opcao) {
             case 1:
 
