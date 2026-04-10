@@ -12,7 +12,7 @@ O sistema utiliza o **TAD Lista** para gerenciar a base de dados e oferece as se
 
 ## Metas Calculadas
 
-O sistema processa indicadores de desempenho baseados nas seguintes fórmulas[cite: 18]:
+O sistema processa indicadores de desempenho baseados nas seguintes fórmulas:
 
 | Indicador | Descrição |
 | :--- | :--- |
