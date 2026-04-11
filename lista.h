@@ -10,7 +10,7 @@ typedef struct
     char sigla_gr[10];
     char uf_oj[10];
     char municipio_oj[40];
-    int id_ultim_oj;
+    int id_ultimo_oj;
     char nome[50];
     char mesano_cnm1[50];
     char mesano_sent[40];
@@ -43,16 +43,17 @@ typedef struct
 typedef struct no {
     Registro dado;
     struct no *proximo; 
-
 } No;
 
 typedef struct lista {
     No *inicio;
+    No *fim;
     int tamanho;
 } Lista;
 
 
 void inicializarlista(Lista* l);
+void inserirNoFim(Lista* l, Registro dado);
 
 
 #endif
