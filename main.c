@@ -283,6 +283,51 @@ void Meta2A(Lista *l, char *nomeSaida){
     printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
 }
 
+void Meta4A(Lista *l, char *nomeSaida) {
+    FILE *file = fopen(nomeSaida, "w");
+    if (file == NULL) {
+        printf("Erro ao criar o arquivo: %s\n", nomeSaida);
+        return;
+    }
+
+    // Cabeçalho
+    fprintf(file, "sigla_tribunal;Meta4A\n");
+
+    char *tribunais[] = {
+        "TRE-AC","TRE-AL","TRE-AM","TRE-AP","TRE-BA","TRE-CE","TRE-DF","TRE-ES","TRE-GO","TRE-MA","TRE-MG","TRE-MS","TRE-MT","TRE-PA","TRE-PB","TRE-PE","TRE-PI","TRE-PR","TRE-RJ","TRE-RN","TRE-RO","TRE-RR","TRE-RS","TRE-SC","TRE-SE","TRE-SP","TRE-TO"
+    };
+
+    int num_tribunais = 27;
+
+    for(int i = 0; i < num_tribunais; i++){
+        int soma_julg = 0, soma_dist = 0, soma_susp = 0;
+
+        No *atual = l->inicio;
+
+        while(atual != NULL){
+            if(strcmp(atual->dado.sigla_tribunal, tribunais[i]) == 0){
+                soma_julg += atual->dado.julgm4_a;
+                soma_dist += atual->dado.distm4_a;
+                soma_susp += atual->dado.suspm4_a;
+            }
+            atual = atual->proximo;
+        }
+
+        int denominador = soma_dist + soma_susp;
+        float meta4A = 0.0;
+
+        if (denominador != 0){
+            meta4A = ((float)soma_julg / denominador) * 100;
+        }
+
+        printf("%s: %.2f%%\n", tribunais[i], meta4A);
+        fprintf(file, "%s;%.2f\n", tribunais[i], meta4A);
+    }
+
+    fclose(file);
+    printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
+}
+
 void Meta4B(Lista *l, char *nomeSaida) {
     FILE *file = fopen(nomeSaida, "w");
     if (file == NULL) {
