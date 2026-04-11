@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
 #include "lista.h"
 
 void lerString(char *destino){
@@ -19,6 +21,11 @@ void lerString(char *destino){
     } else {
         destino[0] = '\0'; // Atribui string vazia se não houver token
     }
+}
+
+void limparBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 }
 
 int lerInt(){
@@ -120,6 +127,65 @@ void gerarArquivoConcatenado(Lista *l, char *nomeSaida){
 
     fclose(file);
     printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
+}
+
+void filtrarMunicipio(Lista *l){
+    system("cls");
+    char busca[35];
+    char nomeArquivo[50];
+    
+
+    printf("----- Gerar resumo de um municipio -----\n");
+    printf("Digite o nome do municipio que deseja filtrar: ");
+    scanf(" %[^\n]", busca); //pra ler string com espaços
+    limparBuffer();
+
+    for(int i = 0; busca[i]; i++){
+        busca[i] = toupper(busca[i]);   
+    }
+
+    //nome do arquivo
+    sprintf(nomeArquivo, "resumo_%s.csv", busca);
+
+    FILE *file = fopen(nomeArquivo, "w");
+    if(file == NULL){
+        printf("Erro ao criar o arquivo %s!\n", nomeArquivo);
+        system("pause");
+        return;
+    }
+
+    //cabeçalho do arquivo de resumo
+    fprintf(file, "municipio_oj,sigla_tribunal,procedimento,ramo_justica,sigla_gr,uf_oj,id_ultimo_oj,nome,mesano_cnm1,mesano_sent,casos_novos_2026,julgados_2026,prim_sent2026,suspensos_2026,dessobrestados_2026,cumprimento_meta1,distm2_a,julgm2_a,suspm2_a,cumprimento_meta2a,distm2_ant,julgm2_ant,suspm2_ant,desom2_ant,cumprimento_meta2ant,distm4_a,julgm4_a,suspm4_a,cumprimento_meta4a,distm4_b,julgm4_b,suspm4_b,cumprimento_meta4b\n");
+
+    int encontrado = 0;
+    No *atual = l->inicio;
+
+    while(atual != NULL){
+        if(strcmp(atual->dado.municipio_oj, busca) == 0){
+            Registro d = atual->dado;
+            fprintf(file, "%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+                    d.municipio_oj, d.sigla_tribunal, d.procedimento, d.ramo_justica, d.sigla_gr, d.uf_oj, 
+                    d.id_ultimo_oj, d.nome, d.mesano_cnm1, d.mesano_sent, d.casos_novos_2026, d.julgados_2026,
+                    d.prim_sent2026, d.suspensos_2026, d.dessobrestados_2026, d.cumprimento_meta1, d.distm2_a,
+                    d.julgm2_a, d.suspm2_a, d.cumprimento_meta2a, d.distm2_ant, d.julgm2_ant, d.suspm2_ant,
+                    d.desom2_ant, d.cumprimento_meta2ant, d.distm4_a, d.julgm4_a, d.suspm4_a, d.cumprimento_meta4a,
+                    d.distm4_b, d.julgm4_b, d.suspm4_b, d.cumprimento_meta4b);
+            encontrado++;
+        }
+        atual = atual->proximo;
+    }
+
+    fclose(file);
+
+    if(encontrado > 0){
+        printf("Arquivo %s gerado com sucesso! %d registros encontrados.\n", nomeArquivo, encontrado);
+        system("pause");
+    } else {
+        printf("Nenhum registro encontrado para o municipio: %s\n", busca);
+        system("pause");
+        remove(nomeArquivo); // Remove o arquivo vazio
+    }
+
 }
 
 void Meta1(Lista *l, char *nomeSaida){
@@ -261,7 +327,6 @@ void Meta4B(Lista *l, char *nomeSaida) {
     printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
 }
 
-
 int main() {
 
     Lista minhaLista;
@@ -307,11 +372,12 @@ int main() {
         printf("4. Calcular Meta2Ant\n");
         printf("5. Calcular Meta4A\n");
         printf("6. Calcular Meta4B\n");  
-        printf("7. Escolha de um municipio\n");
+        printf("7. Gerar resumo de um municipio\n");
         printf("8. Sair\n"); 
         printf("--------------------------------------------\n");
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
+        limparBuffer();
         
         //Opções diferentes no menu só para testar as funções de calculo, trocar a mensagem de não implementada depois pela função real
         //depois colocar todo o resultado do resumo em um mesmo csv (Gabe: vou fazer isso quando vcs terminarem essas funções, para não ter que ficar editando o código toda hora)
@@ -344,7 +410,7 @@ int main() {
                 system("pause");
                 break;
             case 7:
-                printf("Funcao de escolha de municipio ainda nao implementada!\n");
+                filtrarMunicipio(&minhaLista);
                 break;
             case 8:
                 liberarLista(&minhaLista);

@@ -6,13 +6,13 @@
 typedef struct
 {
     char sigla_tribunal[10]; 
-    char procedimento[25];   
+    char procedimento[35];   
     char ramo_justica[20];   
     char sigla_gr[6];        
     char uf_oj[5];           
-    char municipio_oj[35];   
+    char municipio_oj[45];   
     int id_ultimo_oj;
-    char nome[45];           
+    char nome[55];           
     char mesano_cnm1[12];    
     char mesano_sent[12];   
     
