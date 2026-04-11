@@ -197,19 +197,24 @@ void Meta2A(Lista *l, char *nomeSaida){
 	      soma_julgm2_a += atual->dado.julgm2_a;
 	      soma_distm2_a += atual->dado.distm2_a;
               soma_suspm2_a += atual->dado.suspm2_a;
-	}
+	    }
         atual = atual->proximo;
-      }
-        int denominador = soma_distm2_a - soma_suspm2_a;
+    }
+
+    int denominador = soma_distm2_a - soma_suspm2_a;
 	float meta2 = 0.0;
 	
 	if (denominador != 0){
-	meta2 = ((float)soma_julgm2_a/denominador) *100;
+	    meta2 = ((float)soma_julgm2_a/denominador) * 1000/7;
 	}
 
 	printf("%s: %.2f%%\n", tribunais[i], meta2);
 	fprintf(file, "%s;%.2f\n", tribunais[i], meta2);
 	}
+
+    fclose(file);
+    printf("----------------------------------\n");
+    printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
 }
 
 
