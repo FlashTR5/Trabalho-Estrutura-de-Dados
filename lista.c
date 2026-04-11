@@ -30,3 +30,17 @@ void inserirNoFim(Lista* l, Registro dado){
     l->tamanho++; 
 }
 
+void liberarLista(Lista* l) {
+    No *atual = l->inicio;
+    while (atual != NULL) {
+        No *proximo = atual->proximo;
+        free(atual);
+        atual = proximo;
+    }
+    l->inicio = NULL;
+    l->fim = NULL;
+    l->tamanho = 0;
+
+    printf("Lista liberada com sucesso!\n");
+}
+

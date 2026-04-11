@@ -5,15 +5,15 @@
 typedef struct
 {
     char sigla_tribunal[10];
-    char procedimento[50];
-    char ramo_justica[50];
+    char procedimento[20];
+    char ramo_justica[20];
     char sigla_gr[10];
     char uf_oj[10];
-    char municipio_oj[40];
+    char municipio_oj[30];
     int id_ultimo_oj;
-    char nome[50];
-    char mesano_cnm1[50];
-    char mesano_sent[40];
+    char nome[40];
+    char mesano_cnm1[15];
+    char mesano_sent[15];
     int casos_novos_2026;
     int julgados_2026;
     int prim_sent2026;
@@ -54,6 +54,8 @@ typedef struct lista {
 
 void inicializarlista(Lista* l);
 void inserirNoFim(Lista* l, Registro dado);
+
+void liberarLista(Lista* l);
 
 
 #endif

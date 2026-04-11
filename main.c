@@ -233,7 +233,7 @@ int main() {
                 break;
             case 4:
                 printf("Funcao Meta2Ant ainda nao implementada!\n");
-                break;
+                break;  
             case 5:
                 printf("Funcao Meta4A ainda nao implementada!\n");
                 break;
@@ -244,6 +244,7 @@ int main() {
                 printf("Funcao de escolha de municipio ainda nao implementada!\n");
                 break;
             case 8:
+                liberarLista(&minhaLista);
                 printf("Saindo...\n");
                 exit(1);
             default:
