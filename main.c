@@ -4,9 +4,18 @@
 #include "lista.h"
 
 void lerString(char *destino){
+    //vai ate a virgula ou aspas
     char *token = strtok(NULL, ",\"\r\n");
     if(token != NULL){
+        while(*token == ' ') token++; // Remove espaços em branco no início
         strcpy(destino, token);
+
+        int len = strlen(destino);
+        // Remove espaços em branco no final se tiver
+        while(len > 0 && destino[len - 1] == ' '){
+            destino[len - 1] = '\0';
+            len--;
+        }
     } else {
         destino[0] = '\0'; // Atribui string vazia se não houver token
     }
