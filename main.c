@@ -217,11 +217,55 @@ void Meta2A(Lista *l, char *nomeSaida){
     printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
 }
 
+void Meta4B(Lista *l, char *nomeSaida) {
+    FILE *file = fopen(nomeSaida, "w");
+    if (file == NULL) {
+        printf("Erro ao criar o arquivo: %s\n", nomeSaida);
+        return;
+    }
+
+    // Cabeçalho do CSV conforme o padrão do trabalho
+    fprintf(file, "sigla tribunal;Meta4B\n");
+
+    char *tribunais[] = {"TRE-AC", "TRE-AL", "TRE-AM", "TRE-AP", "TRE-BA", "TRE-CE", "TRE-DF", "TRE-ES", "TRE-GO", "TRE-MA", "TRE-MG", "TRE-MS", "TRE-MT", "TRE-PA", "TRE-PB", "TRE-PE", "TRE-PI", "TRE-PR", "TRE-RJ", "TRE-RN", "TRE-RO", "TRE-RR", "TRE-RS", "TRE-SC", "TRE-SE", "TRE-SP", "TRE-TO"};
+    int num_tribunais = 27;
+
+    for (int i = 0; i < num_tribunais; i++) {
+        // Acumuladores específicos para a Meta 4B (campos 30, 31 e 32)
+        int soma_julgm4_b = 0, soma_distm4_b = 0, soma_suspm4_b = 0;
+        
+        No *atual = l->inicio; // Declarado apenas uma vez aqui
+
+        while (atual != NULL) {
+            if (strcmp(atual->dado.sigla_tribunal, tribunais[i]) == 0) {
+                soma_julgm4_b += atual->dado.julgm4_b; // Campo 31 [cite: 12]
+                soma_distm4_b += atual->dado.distm4_b; // Campo 30 [cite: 12]
+                soma_suspm4_b += atual->dado.suspm4_b; // Campo 32 [cite: 12]
+            }
+            atual = atual->proximo;
+        }
+
+        // Aplicando a fórmula do PDF: (Julgados / (Distribuídos - Suspensos)) * 100 [cite: 18]
+        int denominador = soma_distm4_b - soma_suspm4_b;
+        float meta4b_resultado = 0.0;
+
+        if (denominador != 0) {
+            meta4b_resultado = ((float)soma_julgm4_b / denominador) * 100;
+        }
+        printf("%s: %.2f%%\n", tribunais[i], meta4b_resultado);
+        fprintf(file, "%s;%.2f\n", tribunais[i], meta4b_resultado);
+    }
+
+
+    fclose(file);
+    printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
+}
+
 
 int main() {
 
     Lista minhaLista;
-    inicializarlista(&minhaLista); 
+    inicializarlista(&minhaLista);
 
     carregarArquivo(&minhaLista, "Base de Dados/teste_TRE-AC.csv");
     carregarArquivo(&minhaLista, "Base de Dados/teste_TRE-AL.csv");
@@ -295,7 +339,9 @@ int main() {
                 printf("Funcao Meta4A ainda nao implementada!\n");
                 break;
             case 6:
-                printf("Funcao Meta4B ainda nao implementada!\n");
+                Meta4B(&minhaLista, "resumo_meta4b.csv"); 
+                printf("\n");     
+                system("pause");
                 break;
             case 7:
                 printf("Funcao de escolha de municipio ainda nao implementada!\n");
