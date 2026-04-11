@@ -172,6 +172,47 @@ void Meta1(Lista *l, char *nomeSaida){
 
 }
 
+void Meta2A(Lista *l, char *nomeSaida){
+	FILE *file =fopen (nomeSaida, "w");
+	if (file == NULL){
+	printf("Erro ao criar o arquivo: %s\n", nomeSaida);
+	return;
+	}
+
+	fprintf(file, "sigla tribunal;Meta2\n");
+
+	printf("\n--- Resultados de Meta 2 ---\n");
+
+	char *tribunais[] = {"TRE-AC", "TRE-AL", "TRE-AM", "TRE-AP", "TRE-BA", "TRE-CE", "TRE-DF", "TRE-ES", "TRE-GO", "TRE-MA", "TRE-MG", "TRE-MS", "TRE-MT", "TRE-PA", "TRE-PB", "TRE-PE", "TRE-PI", "TRE-PR", "TRE-RJ", "TRE-RN", "TRE-RO", "TRE-RR", "TRE-RS", "TRE-SC", "TRE-SE", "TRE-SP", "TRE-TO"};
+
+    int num_tribunais = 27;
+
+    for (int i = 0; i<num_tribunais; i++){
+	int soma_julgm2_a = 0, soma_distm2_a = 0, soma_suspm2_a = 0;
+	
+	No *atual =l->inicio;
+
+	while(atual != NULL){
+	   if(strcmp(atual->dado.sigla_tribunal, tribunais[i]) == 0){
+	      soma_julgm2_a += atual->dado.julgm2_a;
+	      soma_distm2_a += atual->dado.distm2_a;
+              soma_suspm2_a += atual->dado.suspm2_a;
+	}
+        atual = atual->proximo;
+      }
+        int denominador = soma_distm2_a - soma_suspm2_a;
+	float meta2 = 0.0;
+	
+	if (denominador != 0){
+	meta2 = ((float)soma_julgm2_a/denominador) *100;
+	}
+
+	printf("%s: %.2f%%\n", tribunais[i], meta2);
+	fprintf(file, "%s;%.2f\n", tribunais[i], meta2);
+	}
+}
+
+
 int main() {
 
     Lista minhaLista;
@@ -238,7 +279,9 @@ int main() {
                 system("pause");
                 break;
             case 3:
-                printf("Funcao Meta2A ainda nao implementada!\n");
+                Meta2A(&minhaLista, "resumo_meta2_a.csv");
+                printf("\n");
+                system("pause");
                 break;
             case 4:
                 printf("Funcao Meta2Ant ainda nao implementada!\n");
