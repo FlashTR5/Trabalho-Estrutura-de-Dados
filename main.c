@@ -283,6 +283,55 @@ void Meta2A(Lista *l, char *nomeSaida){
     printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
 }
 
+void Meta2Ant(Lista *l, char *nomeSaida) {
+    FILE *file = fopen(nomeSaida, "w");
+    if (file == NULL) {
+        printf("Erro ao criar o arquivo: %s\n", nomeSaida);
+        return;
+    }
+
+    fprintf(file, "sigla_tribunal;Meta2Ant\n");
+    printf("\n--- Resultados de Meta 2 Ant ---\n");
+
+    char *tribunais[] = {"TRE-AC", "TRE-AL", "TRE-AM", "TRE-AP", "TRE-BA", "TRE-CE", "TRE-DF", "TRE-ES", "TRE-GO", "TRE-MA", "TRE-MG", "TRE-MS", "TRE-MT", "TRE-PA", "TRE-PB", "TRE-PE", "TRE-PI", "TRE-PR", "TRE-RJ", "TRE-RN", "TRE-RO", "TRE-RR", "TRE-RS", "TRE-SC", "TRE-SE", "TRE-SP", "TRE-TO"};
+    int num_tribunais = 27;
+
+    for (int i = 0; i < num_tribunais; i++) {
+        // Correção 1: Declarar e zerar os acumuladores corretos (Antigos)
+        int soma_julgm2_ant = 0, soma_distm2_ant = 0, soma_desom2_ant = 0, soma_suspm2_ant = 0;
+
+        No *atual = l->inicio;
+
+        while (atual != NULL) {
+            // Correção 2: Acesso correto aos dados (atual->dado) e colchetes no índice i
+            if (strcmp(atual->dado.sigla_tribunal, tribunais[i]) == 0) {
+                soma_julgm2_ant += atual->dado.julgm2_ant;
+                soma_distm2_ant += atual->dado.distm2_ant;
+                soma_desom2_ant += atual->dado.desom2_ant;
+                soma_suspm2_ant += atual->dado.suspm2_ant;
+            }
+            atual = atual->proximo;
+        }
+
+        // Correção 3: Denominador conforme a fórmula da Meta 2Ant 
+        int denominador = soma_distm2_ant - soma_suspm2_ant - soma_desom2_ant;
+        float meta2ant = 0.0;
+
+        if (denominador != 0) {
+            // Correção 4: Cálculo com cast para float para não perder precisão
+            meta2ant = ((float)soma_julgm2_ant / denominador) * 100;
+        }
+
+        printf("%s: %.2f%%\n", tribunais[i], meta2ant);
+        fprintf(file, "%s;%.2f\n", tribunais[i], meta2ant);
+    }
+
+    fclose(file);
+    printf("----------------------------------\n");
+    printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
+}
+
+
 void Meta4A(Lista *l, char *nomeSaida) {
     FILE *file = fopen(nomeSaida, "w");
     if (file == NULL) {
@@ -444,10 +493,14 @@ int main() {
                 system("pause");
                 break;
             case 4:
-                printf("Funcao Meta2Ant ainda nao implementada!\n");
+                Meta2Ant(&minhaLista, "resumo_meta2_ant.csv");
+                printf("\n");
+                system("pause");
                 break;  
             case 5:
-                printf("Funcao Meta4A ainda nao implementada!\n");
+                Meta4A(&minhaLista, "resumo_meta4_a.csv");
+                printf("\n");
+                system("pause");
                 break;
             case 6:
                 Meta4B(&minhaLista, "resumo_meta4b.csv"); 
