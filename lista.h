@@ -41,5 +41,13 @@ void inicializarlista(Lista* l);
 void inserirNoFim(Lista* l, Registro dado);
 void liberarLista(Lista* l);
 
+void limparBuffer();
+int lerInt();
+void lerString(char *destino);
+
+void carregarArquivo(Lista *l, char *nomeArquivo);
+
+//pra conseguir ler os municipios com acentos;
+void sanitizarString(const char *origem, char *destino);
 
 #endif

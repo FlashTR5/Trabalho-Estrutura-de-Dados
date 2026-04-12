@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "lista.h"
 
@@ -44,3 +45,125 @@ void liberarLista(Lista* l) {
     printf("Lista liberada com sucesso!\n");
 }
 
+void lerString(char *destino){
+    //vai ate a virgula ou aspas
+    char *token = strtok(NULL, ",\"\r\n");
+    if(token != NULL){
+        while(*token == ' ') token++; // Remove espaços em branco no início
+        strcpy(destino, token);
+
+        int len = strlen(destino);
+        // Remove espaços em branco no final se tiver
+        while(len > 0 && destino[len - 1] == ' '){
+            destino[len - 1] = '\0';
+            len--;
+        }
+    } else {
+        destino[0] = '\0'; // Atribui string vazia se não houver token
+    }
+}
+
+int lerInt(){
+    char *token = strtok(NULL, ",\"\r\n");
+    
+    if(token != NULL){
+        return atoi(token);
+    } 
+    
+    return 0;
+}
+
+void limparBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+void sanitizarString(const char *origem, char *destino) {
+    int i = 0, j = 0;
+    unsigned char c;
+    
+    while (origem[i] != '\0') {
+        c = (unsigned char)origem[i];
+        
+        //isso aqui é para converter letra com acento pra sem acentos e maiúsculas
+        if (c >= 192 && c <= 197) c = 'A'; 
+        else if (c == 199) c = 'C';        
+        else if (c >= 200 && c <= 203) c = 'E'; 
+        else if (c >= 204 && c <= 207) c = 'I'; 
+        else if (c >= 210 && c <= 214) c = 'O'; 
+        else if (c >= 217 && c <= 220) c = 'U'; 
+        else if (c >= 224 && c <= 229) c = 'A'; 
+        else if (c == 231) c = 'C';        
+        else if (c >= 232 && c <= 235) c = 'E'; 
+        else if (c >= 236 && c <= 239) c = 'I'; 
+        else if (c >= 242 && c <= 246) c = 'O'; 
+        else if (c >= 249 && c <= 252) c = 'U'; 
+        else c = toupper(c); // Letras normais transforma em Maiúsculas
+        
+        destino[j] = c;
+        i++;
+        j++;
+    }
+    destino[j] = '\0'; 
+}
+
+void carregarArquivo(Lista *l, char *nomeArquivo){
+    FILE *file = fopen(nomeArquivo, "r");
+
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo: %s\n", nomeArquivo);
+        return;
+    }
+
+    char linha[2048];
+    fgets(linha, sizeof(linha), file); //Ignorar a primeira linha
+
+    while(fgets(linha, sizeof(linha), file)){
+        Registro novoDado;
+
+        char *primeiro_token = strtok(linha, ",\"\r\n");
+
+        if(primeiro_token == NULL) continue;
+        strcpy(novoDado.sigla_tribunal, primeiro_token);
+
+        lerString(novoDado.procedimento);
+        lerString(novoDado.ramo_justica);
+        lerString(novoDado.sigla_gr);
+        lerString(novoDado.uf_oj);
+        lerString(novoDado.municipio_oj);
+
+        novoDado.id_ultimo_oj = lerInt();
+
+        lerString(novoDado.nome);
+        lerString(novoDado.mesano_cnm1);
+        lerString(novoDado.mesano_sent);
+
+        novoDado.casos_novos_2026 = lerInt();
+        novoDado.julgados_2026 = lerInt();
+        novoDado.prim_sent2026 = lerInt();
+        novoDado.suspensos_2026 = lerInt();
+        novoDado.dessobrestados_2026 = lerInt();
+        novoDado.cumprimento_meta1 = lerInt();
+        novoDado.distm2_a = lerInt();
+        novoDado.julgm2_a = lerInt();
+        novoDado.suspm2_a = lerInt();
+        novoDado.cumprimento_meta2a = lerInt();
+        novoDado.distm2_ant = lerInt();
+        novoDado.julgm2_ant = lerInt();
+        novoDado.suspm2_ant = lerInt();
+        novoDado.desom2_ant = lerInt();
+        novoDado.cumprimento_meta2ant = lerInt();
+        novoDado.distm4_a = lerInt();
+        novoDado.julgm4_a = lerInt();
+        novoDado.suspm4_a = lerInt();
+        novoDado.cumprimento_meta4a = lerInt();
+        novoDado.distm4_b = lerInt();
+        novoDado.julgm4_b = lerInt();
+        novoDado.suspm4_b = lerInt();
+        novoDado.cumprimento_meta4b = lerInt();
+
+        inserirNoFim(l, novoDado);
+    }
+
+    fclose(file);
+}

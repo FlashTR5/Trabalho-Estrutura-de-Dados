@@ -1,103 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 #include <ctype.h>
 
 #include "lista.h"
-
-void lerString(char *destino){
-    //vai ate a virgula ou aspas
-    char *token = strtok(NULL, ",\"\r\n");
-    if(token != NULL){
-        while(*token == ' ') token++; // Remove espaços em branco no início
-        strcpy(destino, token);
-
-        int len = strlen(destino);
-        // Remove espaços em branco no final se tiver
-        while(len > 0 && destino[len - 1] == ' '){
-            destino[len - 1] = '\0';
-            len--;
-        }
-    } else {
-        destino[0] = '\0'; // Atribui string vazia se não houver token
-    }
-}
-
-int lerInt(){
-    char *token = strtok(NULL, ",\"\r\n");
-    
-    if(token != NULL){
-        return atoi(token);
-    } 
-    
-    return 0;
-}
-
-void limparBuffer() {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
-}
-
-void carregarArquivo(Lista *l, char *nomeArquivo){
-    FILE *file = fopen(nomeArquivo, "r");
-
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo: %s\n", nomeArquivo);
-        return;
-    }
-
-    char linha[2048];
-    fgets(linha, sizeof(linha), file); //Ignorar a primeira linha
-
-    while(fgets(linha, sizeof(linha), file)){
-        Registro novoDado;
-
-        char *primeiro_token = strtok(linha, ",\"\r\n");
-
-        if(primeiro_token == NULL) continue;
-        strcpy(novoDado.sigla_tribunal, primeiro_token);
-
-        lerString(novoDado.procedimento);
-        lerString(novoDado.ramo_justica);
-        lerString(novoDado.sigla_gr);
-        lerString(novoDado.uf_oj);
-        lerString(novoDado.municipio_oj);
-
-        novoDado.id_ultimo_oj = lerInt();
-
-        lerString(novoDado.nome);
-        lerString(novoDado.mesano_cnm1);
-        lerString(novoDado.mesano_sent);
-
-        novoDado.casos_novos_2026 = lerInt();
-        novoDado.julgados_2026 = lerInt();
-        novoDado.prim_sent2026 = lerInt();
-        novoDado.suspensos_2026 = lerInt();
-        novoDado.dessobrestados_2026 = lerInt();
-        novoDado.cumprimento_meta1 = lerInt();
-        novoDado.distm2_a = lerInt();
-        novoDado.julgm2_a = lerInt();
-        novoDado.suspm2_a = lerInt();
-        novoDado.cumprimento_meta2a = lerInt();
-        novoDado.distm2_ant = lerInt();
-        novoDado.julgm2_ant = lerInt();
-        novoDado.suspm2_ant = lerInt();
-        novoDado.desom2_ant = lerInt();
-        novoDado.cumprimento_meta2ant = lerInt();
-        novoDado.distm4_a = lerInt();
-        novoDado.julgm4_a = lerInt();
-        novoDado.suspm4_a = lerInt();
-        novoDado.cumprimento_meta4a = lerInt();
-        novoDado.distm4_b = lerInt();
-        novoDado.julgm4_b = lerInt();
-        novoDado.suspm4_b = lerInt();
-        novoDado.cumprimento_meta4b = lerInt();
-
-        inserirNoFim(l, novoDado);
-    }
-
-    fclose(file);
-}
 
 void gerarArquivoConcatenado(Lista *l, char *nomeSaida){
     FILE *file = fopen (nomeSaida, "w");
@@ -130,6 +37,7 @@ void gerarArquivoConcatenado(Lista *l, char *nomeSaida){
 }
 
 void resumoGeral(Lista *l, char *nomeSaida){
+    system("cls");
     FILE *file = fopen(nomeSaida, "w");
     if(file == NULL){
         printf("Erro ao criar o arquivo de resumo!\n");
@@ -139,11 +47,12 @@ void resumoGeral(Lista *l, char *nomeSaida){
     //cabeçalho do arquivo de resumo
     fprintf(file, "sigla_tribual,total_julgados,Meta1,Meta2A,Meta2Ant,Meta4A,Meta4B\n");
 
+    printf("-------------------------------RESUMO GERAL-------------------------------\n");
+    printf("Tribunal        |Julgados  |Meta1    |Meta2A   |Meta2Ant |Meta4A   |Meta4B\n");
+    printf("--------------------------------------------------------------------------\n");
+
     char *tribunais[] = {"TRE-AC", "TRE-AL", "TRE-AM", "TRE-AP", "TRE-BA", "TRE-CE", "TRE-DF", "TRE-ES", "TRE-GO", "TRE-MA", "TRE-MG", "TRE-MS", "TRE-MT", "TRE-PA", "TRE-PB", "TRE-PE", "TRE-PI", "TRE-PR", "TRE-RJ", "TRE-RN", "TRE-RO", "TRE-RR", "TRE-RS", "TRE-SC", "TRE-SE", "TRE-SP", "TRE-TO"};
     int num_tribunais = 27;
-
-    printf("\n--- Resumo Geral ---\n");
-    printf("\n%15s | %8s | %7s | %7s | %7s | %7s | %10s\n", "Tribunal", "Total Julgados", "Meta1", "Meta2A", "Meta2Ant", "Meta4A", "Meta4B");
 
     for(int i = 0; i < num_tribunais; i++){
         int julgados_total = 0, c_novos = 0, dessob = 0, susp = 0;
@@ -206,7 +115,8 @@ void resumoGeral(Lista *l, char *nomeSaida){
             meta4b = (float) julg4b / denominador_meta4b * 100;
         }
 
-        //printf("%-15s | %-8d | %-6.2f%% | %-6.2f%% | %-6.2f%% | %-6.2f%% | %-6.2f%%\n", tribunais[i], julgados_total, meta1, meta2a, meta2ant, meta4a, meta4b);
+        
+        printf("%-15s | %-8d | %-6.2f%% | %-6.2f%% | %-6.2f%% | %-6.2f%% | %-6.2f%%\n", tribunais[i], julgados_total, meta1, meta2a, meta2ant, meta4a, meta4b);
         fprintf(file, "%s,%d,%.2f,%.2f,%.2f,%.2f,%.2f\n", tribunais[i], julgados_total, meta1, meta2a, meta2ant, meta4a, meta4b);
 
     }
@@ -227,9 +137,9 @@ void filtrarMunicipio(Lista *l){
     limparBuffer();
 
     for(int i = 0; busca[i]; i++){
-        busca[i] = toupper(busca[i]);   
+        busca[i] = toupper((unsigned char)busca[i]);
     }
-
+    
     //nome do arquivo
     sprintf(nomeArquivo, "resumo_%s.csv", busca);
 
@@ -241,7 +151,7 @@ void filtrarMunicipio(Lista *l){
     }
 
     //cabeçalho do arquivo de resumo
-    fprintf(file, "municipio_oj,sigla_tribunal,procedimento,ramo_justica,sigla_gr,uf_oj,id_ultimo_oj,nome,mesano_cnm1,mesano_sent,casos_novos_2026,julgados_2026,prim_sent2026,suspensos_2026,dessobrestados_2026,cumprimento_meta1,distm2_a,julgm2_a,suspm2_a,cumprimento_meta2a,distm2_ant,julgm2_ant,suspm2_ant,desom2_ant,cumprimento_meta2ant,distm4_a,julgm4_a,suspm4_a,cumprimento_meta4a,distm4_b,julgm4_b,suspm4_b,cumprimento_meta4b\n");
+    fprintf(file, "sigla_tribunal,procedimento,ramo_justica,sigla_gr,uf_oj,municipio_oj,id_ultimo_oj,nome,mesano_cnm1,mesano_sent,casos_novos_2026,julgados_2026,prim_sent2026,suspensos_2026,dessobrestados_2026,cumprimento_meta1,distm2_a,julgm2_a,suspm2_a,cumprimento_meta2a,distm2_ant,julgm2_ant,suspm2_ant,desom2_ant,cumprimento_meta2ant,distm4_a,julgm4_a,suspm4_a,cumprimento_meta4a,distm4_b,julgm4_b,suspm4_b,cumprimento_meta4b\n");
 
     int encontrado = 0;
     No *atual = l->inicio;
@@ -250,7 +160,7 @@ void filtrarMunicipio(Lista *l){
         if(strcmp(atual->dado.municipio_oj, busca) == 0){
             Registro d = atual->dado;
             fprintf(file, "%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-                    d.municipio_oj, d.sigla_tribunal, d.procedimento, d.ramo_justica, d.sigla_gr, d.uf_oj, 
+                    d.sigla_tribunal, d.procedimento, d.ramo_justica, d.sigla_gr, d.uf_oj, d.municipio_oj,
                     d.id_ultimo_oj, d.nome, d.mesano_cnm1, d.mesano_sent, d.casos_novos_2026, d.julgados_2026,
                     d.prim_sent2026, d.suspensos_2026, d.dessobrestados_2026, d.cumprimento_meta1, d.distm2_a,
                     d.julgm2_a, d.suspm2_a, d.cumprimento_meta2a, d.distm2_ant, d.julgm2_ant, d.suspm2_ant,
@@ -269,10 +179,11 @@ void filtrarMunicipio(Lista *l){
         printf("Nenhum registro encontrado para o municipio: %s\n", busca);
         remove(nomeArquivo); // Remove o arquivo vazio
     }
-
 }
 
 int main() {
+    setlocale(LC_ALL, "Portuguese");
+
     Lista minhaLista;
     inicializarlista(&minhaLista);
 
@@ -314,10 +225,10 @@ int main() {
         printf("2. Gerar Resumo (Item 2)\n");
         printf("3. Filtrar por Municipio (Item 3)\n");
         printf("4. Sair\n"); 
-        printf("---------------------------------------------------------\n");
+        printf("-------------------------------------------------------\n");
         printf("Escolha uma opcao: ");
         if(scanf("%d", &opcao) != 1){
-            opcao= -1; // Opção inválida
+            opcao= -1; //Opção Invalida
         }
         limparBuffer(); 
 
