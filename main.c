@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
-#include <ctype.h>
 
 #include "lista.h"
 
@@ -13,7 +12,7 @@ void gerarArquivoConcatenado(Lista *l, char *nomeSaida){
         return;
     }
 
-    //gravar o cabeÃ§alho primeiro 
+    //gravar o cabeçalho primeiro 
     fprintf(file, "sigla_tribunal,procedimento,ramo_justica,sigla_gr,uf_oj,municipio_oj,id_ultimo_oj,nome,mesano_cnm1,mesano_sent,casos_novos_2026,julgados_2026,prim_sent2026,suspensos_2026,dessobrestados_2026,cumprimento_meta1,distm2_a,julgm2_a,suspm2_a,cumprimento_meta2a,distm2_ant,julgm2_ant,suspm2_ant,desom2_ant,cumprimento_meta2ant,distm4_a,julgm4_a,suspm4_a,cumprimento_meta4a,distm4_b,julgm4_b,suspm4_b,cumprimento_meta4b\n");
 
     No *atual = l->inicio;
@@ -33,6 +32,7 @@ void gerarArquivoConcatenado(Lista *l, char *nomeSaida){
     }
 
     fclose(file);
+    printf("-------------------------------------------------------\n");
     printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
 }
 
@@ -44,7 +44,7 @@ void resumoGeral(Lista *l, char *nomeSaida){
         return;
     }
 
-    //cabeÃ§alho do arquivo de resumo
+    //cabeçalho do arquivo de resumo
     fprintf(file, "sigla_tribual,total_julgados,Meta1,Meta2A,Meta2Ant,Meta4A,Meta4B\n");
 
     printf("-------------------------------RESUMO GERAL-------------------------------\n");
@@ -122,6 +122,7 @@ void resumoGeral(Lista *l, char *nomeSaida){
     }
 
     fclose(file);
+    printf("--------------------------------------------------------------------------\n");
     printf("Arquivo '%s' gerado com sucesso!\n", nomeSaida);    
 }
 
@@ -130,15 +131,12 @@ void filtrarMunicipio(Lista *l){
     char busca[35];
     char nomeArquivo[50];
     
-
-    printf("----- Gerar resumo de um municipio -----\n");
-    printf("Digite o nome do municipio que deseja filtrar: ");
-    scanf(" %[^\n]", busca); //pra ler string com espaÃ§os
+    printf("=========================================================\n");
+    printf("               GERAR RESUMO DE UM MUNICIPIO              \n");
+    printf("=========================================================\n");
+    printf("Digite o nome do municipio que deseja filtrar : ");
+    scanf(" %[^\n]", busca); //pra ler string com espaços
     limparBuffer();
-
-    for(int i = 0; busca[i]; i++){
-        busca[i] = toupper((unsigned char)busca[i]);
-    }
     
     //nome do arquivo
     sprintf(nomeArquivo, "resumo_%s.csv", busca);
@@ -150,14 +148,14 @@ void filtrarMunicipio(Lista *l){
         return;
     }
 
-    //cabeÃ§alho do arquivo de resumo
+    //cabeçalho do arquivo de resumo
     fprintf(file, "sigla_tribunal,procedimento,ramo_justica,sigla_gr,uf_oj,municipio_oj,id_ultimo_oj,nome,mesano_cnm1,mesano_sent,casos_novos_2026,julgados_2026,prim_sent2026,suspensos_2026,dessobrestados_2026,cumprimento_meta1,distm2_a,julgm2_a,suspm2_a,cumprimento_meta2a,distm2_ant,julgm2_ant,suspm2_ant,desom2_ant,cumprimento_meta2ant,distm4_a,julgm4_a,suspm4_a,cumprimento_meta4a,distm4_b,julgm4_b,suspm4_b,cumprimento_meta4b\n");
 
     int encontrado = 0;
     No *atual = l->inicio;
 
     while(atual != NULL){
-        if(strcmp(atual->dado.municipio_oj, busca) == 0){
+        if(stricmp(atual->dado.municipio_oj, busca) == 0){
             Registro d = atual->dado;
             fprintf(file, "%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
                     d.sigla_tribunal, d.procedimento, d.ramo_justica, d.sigla_gr, d.uf_oj, d.municipio_oj,
@@ -174,8 +172,10 @@ void filtrarMunicipio(Lista *l){
     fclose(file);
 
     if(encontrado > 0){
+        printf("-------------------------------------------------------\n");
         printf("Arquivo %s gerado com sucesso! %d registros encontrados.\n", nomeArquivo, encontrado);
     } else {
+        printf("-------------------------------------------------------\n");
         printf("Nenhum registro encontrado para o municipio: %s\n", busca);
         remove(nomeArquivo); // Remove o arquivo vazio
     }
@@ -219,8 +219,10 @@ int main() {
 
     do {
         system("cls");
-
-        printf("\n----------SISTEMA DE DADOS DA JUSTICA FEDERAL----------\n");
+        
+        printf("=========================================================\n");
+        printf("            SISTEMA DE DADOS DA JUSTICA FEDERAL          \n");
+        printf("=========================================================\n");
         printf("1. Concatenar arquivo (Item 1)\n");
         printf("2. Gerar Resumo (Item 2)\n");
         printf("3. Filtrar por Municipio (Item 3)\n");
@@ -228,7 +230,7 @@ int main() {
         printf("-------------------------------------------------------\n");
         printf("Escolha uma opcao: ");
         if(scanf("%d", &opcao) != 1){
-            opcao= -1; //OpÃ§Ã£o Invalida
+            opcao= -1; //Opção Invalida
         }
         limparBuffer(); 
 

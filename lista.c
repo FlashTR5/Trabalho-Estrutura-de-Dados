@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+
 
 #include "lista.h"
 
@@ -76,35 +76,6 @@ int lerInt(){
 void limparBuffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
-}
-
-void sanitizarString(const char *origem, char *destino) {
-    int i = 0, j = 0;
-    unsigned char c;
-    
-    while (origem[i] != '\0') {
-        c = (unsigned char)origem[i];
-        
-        //isso aqui é para converter letra com acento pra sem acentos e maiúsculas
-        if (c >= 192 && c <= 197) c = 'A'; 
-        else if (c == 199) c = 'C';        
-        else if (c >= 200 && c <= 203) c = 'E'; 
-        else if (c >= 204 && c <= 207) c = 'I'; 
-        else if (c >= 210 && c <= 214) c = 'O'; 
-        else if (c >= 217 && c <= 220) c = 'U'; 
-        else if (c >= 224 && c <= 229) c = 'A'; 
-        else if (c == 231) c = 'C';        
-        else if (c >= 232 && c <= 235) c = 'E'; 
-        else if (c >= 236 && c <= 239) c = 'I'; 
-        else if (c >= 242 && c <= 246) c = 'O'; 
-        else if (c >= 249 && c <= 252) c = 'U'; 
-        else c = toupper(c); // Letras normais transforma em Maiúsculas
-        
-        destino[j] = c;
-        i++;
-        j++;
-    }
-    destino[j] = '\0'; 
 }
 
 void carregarArquivo(Lista *l, char *nomeArquivo){

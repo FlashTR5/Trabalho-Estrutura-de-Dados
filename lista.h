@@ -47,7 +47,5 @@ void lerString(char *destino);
 
 void carregarArquivo(Lista *l, char *nomeArquivo);
 
-//pra conseguir ler os municipios com acentos;
-void sanitizarString(const char *origem, char *destino);
 
 #endif
