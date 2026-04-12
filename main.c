@@ -23,11 +23,6 @@ void lerString(char *destino){
     }
 }
 
-void limparBuffer() {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
-}
-
 int lerInt(){
     char *token = strtok(NULL, ",\"\r\n");
     
@@ -36,6 +31,11 @@ int lerInt(){
     } 
     
     return 0;
+}
+
+void limparBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 }
 
 void carregarArquivo(Lista *l, char *nomeArquivo){
@@ -107,14 +107,14 @@ void gerarArquivoConcatenado(Lista *l, char *nomeSaida){
     }
 
     //gravar o cabeçalho primeiro 
-    fprintf(file, "sigla_tribunal;procedimento;ramo_justica;sigla_gr;uf_oj;municipio_oj;id_ultimo_oj;nome;mesano_cnm1;mesano_sent;casos_novos_2026;julgados_2026;prim_sent2026;suspensos_2026;dessobrestados_2026;cumprimento_meta1;distm2_a;julgm2_a;suspm2_a;cumprimento_meta2a;distm2_ant;julgm2_ant;suspm2_ant;desom2_ant;cumprimento_meta2ant;distm4_a;julgm4_a;suspm4_a;cumprimento_meta4a;distm4_b;julgm4_b;suspm4_b;cumprimento_meta4b\n");
+    fprintf(file, "sigla_tribunal,procedimento,ramo_justica,sigla_gr,uf_oj,municipio_oj,id_ultimo_oj,nome,mesano_cnm1,mesano_sent,casos_novos_2026,julgados_2026,prim_sent2026,suspensos_2026,dessobrestados_2026,cumprimento_meta1,distm2_a,julgm2_a,suspm2_a,cumprimento_meta2a,distm2_ant,julgm2_ant,suspm2_ant,desom2_ant,cumprimento_meta2ant,distm4_a,julgm4_a,suspm4_a,cumprimento_meta4a,distm4_b,julgm4_b,suspm4_b,cumprimento_meta4b\n");
 
     No *atual = l->inicio;
 
     while (atual != NULL){
         Registro d = atual -> dado;
 
-        fprintf(file, "%s;%s;%s;%s;%s;%s;%d;%s;%s;%s;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d\n",
+        fprintf(file, "%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
                 d.sigla_tribunal, d.procedimento, d.ramo_justica, d.sigla_gr, d.uf_oj, d.municipio_oj,
                 d.id_ultimo_oj, d.nome, d.mesano_cnm1, d.mesano_sent, d.casos_novos_2026, d.julgados_2026,
                 d.prim_sent2026, d.suspensos_2026, d.dessobrestados_2026, d.cumprimento_meta1, d.distm2_a,
@@ -127,6 +127,92 @@ void gerarArquivoConcatenado(Lista *l, char *nomeSaida){
 
     fclose(file);
     printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
+}
+
+void resumoGeral(Lista *l, char *nomeSaida){
+    FILE *file = fopen(nomeSaida, "w");
+    if(file == NULL){
+        printf("Erro ao criar o arquivo de resumo!\n");
+        return;
+    }
+
+    //cabeçalho do arquivo de resumo
+    fprintf(file, "sigla_tribual,total_julgados,Meta1,Meta2A,Meta2Ant,Meta4A,Meta4B\n");
+
+    char *tribunais[] = {"TRE-AC", "TRE-AL", "TRE-AM", "TRE-AP", "TRE-BA", "TRE-CE", "TRE-DF", "TRE-ES", "TRE-GO", "TRE-MA", "TRE-MG", "TRE-MS", "TRE-MT", "TRE-PA", "TRE-PB", "TRE-PE", "TRE-PI", "TRE-PR", "TRE-RJ", "TRE-RN", "TRE-RO", "TRE-RR", "TRE-RS", "TRE-SC", "TRE-SE", "TRE-SP", "TRE-TO"};
+    int num_tribunais = 27;
+
+    printf("\n--- Resumo Geral ---\n");
+    printf("\n%15s | %8s | %7s | %7s | %7s | %7s | %10s\n", "Tribunal", "Total Julgados", "Meta1", "Meta2A", "Meta2Ant", "Meta4A", "Meta4B");
+
+    for(int i = 0; i < num_tribunais; i++){
+        int julgados_total = 0, c_novos = 0, dessob = 0, susp = 0;
+        int julg2a = 0, dist2a = 0, susp2a = 0;
+        int julg2ant = 0, dist2ant = 0, susp2ant = 0, deso2ant = 0;
+        int julg4a = 0, dist4a = 0, susp4a = 0;
+        int julg4b = 0, dist4b = 0, susp4b = 0;
+
+        No *atual = l->inicio;
+        while(atual != NULL){
+            if(strcmp(atual->dado.sigla_tribunal, tribunais[i]) == 0){
+                Registro d = atual->dado;
+                julgados_total += d.julgados_2026;
+                // Meta 1
+                c_novos += d.casos_novos_2026; dessob += d.dessobrestados_2026; susp += d.suspensos_2026;
+                // Meta 2A
+                julg2a += d.julgm2_a; dist2a += d.distm2_a; susp2a += d.suspm2_a;
+                // Meta 2Ant
+                julg2ant += d.julgm2_ant; dist2ant += d.distm2_ant; susp2ant += d.suspm2_ant; deso2ant += d.desom2_ant;
+                // Meta 4A
+                julg4a += d.julgm4_a; dist4a += d.distm4_a; susp4a += d.suspm4_a;
+                // Meta 4B
+                julg4b += d.julgm4_b; dist4b += d.distm4_b; susp4b += d.suspm4_b;
+            }
+            atual = atual->proximo;
+        }
+
+        //Calculo Meta1
+        int denominador_meta1 = c_novos + dessob - susp;
+        float meta1 = 0.0;
+        if(denominador_meta1 != 0){
+            meta1 = (float)julgados_total/denominador_meta1 * 100;
+        }
+
+        //Calculo Meta2A
+        int denominador_meta2a = dist2a - susp2a;
+        float meta2a = 0.0;
+        if(denominador_meta2a != 0){
+            meta2a = (float) julg2a / denominador_meta2a * (1000.0/7.0);
+        }
+
+        //Calculo Meta2Ant
+        int denominador_meta2ant = dist2ant - susp2ant - deso2ant;
+        float meta2ant = 0.0;
+        if(denominador_meta2ant != 0){
+            meta2ant = (float) julg2ant / denominador_meta2ant * 100;
+        }
+
+        //Calculo Meta4A
+        int denominador_meta4a = dist4a - susp4a;
+        float meta4a = 0.0;
+        if(denominador_meta4a != 0){
+            meta4a = (float) julg4a / denominador_meta4a * 100;
+        }
+
+        //Calculo Meta4B
+        int denominador_meta4b = dist4b - susp4b;
+        float meta4b = 0.0;
+        if(denominador_meta4b != 0){
+            meta4b = (float) julg4b / denominador_meta4b * 100;
+        }
+
+        //printf("%-15s | %-8d | %-6.2f%% | %-6.2f%% | %-6.2f%% | %-6.2f%% | %-6.2f%%\n", tribunais[i], julgados_total, meta1, meta2a, meta2ant, meta4a, meta4b);
+        fprintf(file, "%s,%d,%.2f,%.2f,%.2f,%.2f,%.2f\n", tribunais[i], julgados_total, meta1, meta2a, meta2ant, meta4a, meta4b);
+
+    }
+
+    fclose(file);
+    printf("Arquivo '%s' gerado com sucesso!\n", nomeSaida);    
 }
 
 void filtrarMunicipio(Lista *l){
@@ -179,250 +265,14 @@ void filtrarMunicipio(Lista *l){
 
     if(encontrado > 0){
         printf("Arquivo %s gerado com sucesso! %d registros encontrados.\n", nomeArquivo, encontrado);
-        system("pause");
     } else {
         printf("Nenhum registro encontrado para o municipio: %s\n", busca);
-        system("pause");
         remove(nomeArquivo); // Remove o arquivo vazio
     }
 
 }
 
-void Meta1(Lista *l, char *nomeSaida){
-    FILE *file = fopen (nomeSaida, "w");
-    if (file == NULL){
-        printf("Erro ao criar o arquivo: %s\n", nomeSaida);
-        return;
-    }
-
-    fprintf(file, "sigla_tribunal;Meta1\n");
-
-    printf("\n--- Resultados de Meta 1 ---\n");
-
-    //Lista de todos os tribunais que foram carregados
-    char *tribunais[] = {"TRE-AC", "TRE-AL", "TRE-AM", "TRE-AP", "TRE-BA", "TRE-CE", "TRE-DF", "TRE-ES", "TRE-GO", "TRE-MA", "TRE-MG", "TRE-MS", "TRE-MT", "TRE-PA", "TRE-PB", "TRE-PE", "TRE-PI", "TRE-PR", "TRE-RJ", "TRE-RN", "TRE-RO", "TRE-RR", "TRE-RS", "TRE-SC", "TRE-SE", "TRE-SP", "TRE-TO"};
-
-    int num_tribunais = 27;
-
-    for(int i = 0; i < num_tribunais; i++){
-        int soma_julgados = 0, soma_casos_novos = 0, soma_dessobrestados = 0, soma_suspensos = 0;
-
-        No *atual = l->inicio;
-
-        //percorre a lista procurando dados do tribunal atual e soma os valores
-        while(atual != NULL){
-            if(strcmp(atual->dado.sigla_tribunal, tribunais[i]) == 0){
-                soma_julgados += atual->dado.julgados_2026;
-                soma_casos_novos += atual->dado.casos_novos_2026;
-                soma_dessobrestados += atual->dado.dessobrestados_2026;
-                soma_suspensos += atual->dado.suspensos_2026;
-            }
-            atual = atual->proximo;
-        }
-
-        //Faz o calculo do Meta1
-        int denominador = soma_casos_novos + soma_dessobrestados - soma_suspensos;
-        float meta1 = 0.0;
-
-        if (denominador != 0){
-            meta1 = ((float)soma_julgados / denominador) * 100;
-        }
-
-        printf("%s: %.2f%%\n", tribunais[i], meta1);
-        fprintf(file, "%s;%.2f\n", tribunais[i], meta1);
-    }
-
-    fclose(file);
-    printf("----------------------------------\n");
-    printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
-
-}
-
-void Meta2A(Lista *l, char *nomeSaida){
-	FILE *file =fopen (nomeSaida, "w");
-	if (file == NULL){
-	printf("Erro ao criar o arquivo: %s\n", nomeSaida);
-	return;
-	}
-
-	fprintf(file, "sigla tribunal;Meta2\n");
-
-	printf("\n--- Resultados de Meta 2 ---\n");
-
-	char *tribunais[] = {"TRE-AC", "TRE-AL", "TRE-AM", "TRE-AP", "TRE-BA", "TRE-CE", "TRE-DF", "TRE-ES", "TRE-GO", "TRE-MA", "TRE-MG", "TRE-MS", "TRE-MT", "TRE-PA", "TRE-PB", "TRE-PE", "TRE-PI", "TRE-PR", "TRE-RJ", "TRE-RN", "TRE-RO", "TRE-RR", "TRE-RS", "TRE-SC", "TRE-SE", "TRE-SP", "TRE-TO"};
-
-    int num_tribunais = 27;
-
-    for (int i = 0; i<num_tribunais; i++){
-	int soma_julgm2_a = 0, soma_distm2_a = 0, soma_suspm2_a = 0;
-	
-	No *atual =l->inicio;
-
-	while(atual != NULL){
-	   if(strcmp(atual->dado.sigla_tribunal, tribunais[i]) == 0){
-	      soma_julgm2_a += atual->dado.julgm2_a;
-	      soma_distm2_a += atual->dado.distm2_a;
-              soma_suspm2_a += atual->dado.suspm2_a;
-	    }
-        atual = atual->proximo;
-    }
-
-    int denominador = soma_distm2_a - soma_suspm2_a;
-	float meta2 = 0.0;
-	
-	if (denominador != 0){
-	    meta2 = ((float)soma_julgm2_a/denominador) * 1000/7;
-	}
-
-	printf("%s: %.2f%%\n", tribunais[i], meta2);
-	fprintf(file, "%s;%.2f\n", tribunais[i], meta2);
-	}
-
-    fclose(file);
-    printf("----------------------------------\n");
-    printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
-}
-
-void Meta2Ant(Lista *l, char *nomeSaida) {
-    FILE *file = fopen(nomeSaida, "w");
-    if (file == NULL) {
-        printf("Erro ao criar o arquivo: %s\n", nomeSaida);
-        return;
-    }
-
-    fprintf(file, "sigla_tribunal;Meta2Ant\n");
-    printf("\n--- Resultados de Meta 2 Ant ---\n");
-
-    char *tribunais[] = {"TRE-AC", "TRE-AL", "TRE-AM", "TRE-AP", "TRE-BA", "TRE-CE", "TRE-DF", "TRE-ES", "TRE-GO", "TRE-MA", "TRE-MG", "TRE-MS", "TRE-MT", "TRE-PA", "TRE-PB", "TRE-PE", "TRE-PI", "TRE-PR", "TRE-RJ", "TRE-RN", "TRE-RO", "TRE-RR", "TRE-RS", "TRE-SC", "TRE-SE", "TRE-SP", "TRE-TO"};
-    int num_tribunais = 27;
-
-    for (int i = 0; i < num_tribunais; i++) {
-        // Correção 1: Declarar e zerar os acumuladores corretos (Antigos)
-        int soma_julgm2_ant = 0, soma_distm2_ant = 0, soma_desom2_ant = 0, soma_suspm2_ant = 0;
-
-        No *atual = l->inicio;
-
-        while (atual != NULL) {
-            // Correção 2: Acesso correto aos dados (atual->dado) e colchetes no índice i
-            if (strcmp(atual->dado.sigla_tribunal, tribunais[i]) == 0) {
-                soma_julgm2_ant += atual->dado.julgm2_ant;
-                soma_distm2_ant += atual->dado.distm2_ant;
-                soma_desom2_ant += atual->dado.desom2_ant;
-                soma_suspm2_ant += atual->dado.suspm2_ant;
-            }
-            atual = atual->proximo;
-        }
-
-        // Correção 3: Denominador conforme a fórmula da Meta 2Ant 
-        int denominador = soma_distm2_ant - soma_suspm2_ant - soma_desom2_ant;
-        float meta2ant = 0.0;
-
-        if (denominador != 0) {
-            // Correção 4: Cálculo com cast para float para não perder precisão
-            meta2ant = ((float)soma_julgm2_ant / denominador) * 100;
-        }
-
-        printf("%s: %.2f%%\n", tribunais[i], meta2ant);
-        fprintf(file, "%s;%.2f\n", tribunais[i], meta2ant);
-    }
-
-    fclose(file);
-    printf("----------------------------------\n");
-    printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
-}
-
-
-void Meta4A(Lista *l, char *nomeSaida) {
-    FILE *file = fopen(nomeSaida, "w");
-    if (file == NULL) {
-        printf("Erro ao criar o arquivo: %s\n", nomeSaida);
-        return;
-    }
-
-    // Cabeçalho
-    fprintf(file, "sigla_tribunal;Meta4A\n");
-
-    char *tribunais[] = {
-        "TRE-AC","TRE-AL","TRE-AM","TRE-AP","TRE-BA","TRE-CE","TRE-DF","TRE-ES","TRE-GO","TRE-MA","TRE-MG","TRE-MS","TRE-MT","TRE-PA","TRE-PB","TRE-PE","TRE-PI","TRE-PR","TRE-RJ","TRE-RN","TRE-RO","TRE-RR","TRE-RS","TRE-SC","TRE-SE","TRE-SP","TRE-TO"
-    };
-
-    int num_tribunais = 27;
-
-    for(int i = 0; i < num_tribunais; i++){
-        int soma_julg = 0, soma_dist = 0, soma_susp = 0;
-
-        No *atual = l->inicio;
-
-        while(atual != NULL){
-            if(strcmp(atual->dado.sigla_tribunal, tribunais[i]) == 0){
-                soma_julg += atual->dado.julgm4_a;
-                soma_dist += atual->dado.distm4_a;
-                soma_susp += atual->dado.suspm4_a;
-            }
-            atual = atual->proximo;
-        }
-
-        int denominador = soma_dist + soma_susp;
-        float meta4A = 0.0;
-
-        if (denominador != 0){
-            meta4A = ((float)soma_julg / denominador) * 100;
-        }
-
-        printf("%s: %.2f%%\n", tribunais[i], meta4A);
-        fprintf(file, "%s;%.2f\n", tribunais[i], meta4A);
-    }
-
-    fclose(file);
-    printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
-}
-
-void Meta4B(Lista *l, char *nomeSaida) {
-    FILE *file = fopen(nomeSaida, "w");
-    if (file == NULL) {
-        printf("Erro ao criar o arquivo: %s\n", nomeSaida);
-        return;
-    }
-
-    // Cabeçalho do CSV conforme o padrão do trabalho
-    fprintf(file, "sigla tribunal;Meta4B\n");
-
-    char *tribunais[] = {"TRE-AC", "TRE-AL", "TRE-AM", "TRE-AP", "TRE-BA", "TRE-CE", "TRE-DF", "TRE-ES", "TRE-GO", "TRE-MA", "TRE-MG", "TRE-MS", "TRE-MT", "TRE-PA", "TRE-PB", "TRE-PE", "TRE-PI", "TRE-PR", "TRE-RJ", "TRE-RN", "TRE-RO", "TRE-RR", "TRE-RS", "TRE-SC", "TRE-SE", "TRE-SP", "TRE-TO"};
-    int num_tribunais = 27;
-
-    for (int i = 0; i < num_tribunais; i++) {
-        // Acumuladores específicos para a Meta 4B (campos 30, 31 e 32)
-        int soma_julgm4_b = 0, soma_distm4_b = 0, soma_suspm4_b = 0;
-        
-        No *atual = l->inicio; // Declarado apenas uma vez aqui
-
-        while (atual != NULL) {
-            if (strcmp(atual->dado.sigla_tribunal, tribunais[i]) == 0) {
-                soma_julgm4_b += atual->dado.julgm4_b; // Campo 31 [cite: 12]
-                soma_distm4_b += atual->dado.distm4_b; // Campo 30 [cite: 12]
-                soma_suspm4_b += atual->dado.suspm4_b; // Campo 32 [cite: 12]
-            }
-            atual = atual->proximo;
-        }
-
-        // Aplicando a fórmula do PDF: (Julgados / (Distribuídos - Suspensos)) * 100 [cite: 18]
-        int denominador = soma_distm4_b - soma_suspm4_b;
-        float meta4b_resultado = 0.0;
-
-        if (denominador != 0) {
-            meta4b_resultado = ((float)soma_julgm4_b / denominador) * 100;
-        }
-        printf("%s: %.2f%%\n", tribunais[i], meta4b_resultado);
-        fprintf(file, "%s;%.2f\n", tribunais[i], meta4b_resultado);
-    }
-
-
-    fclose(file);
-    printf("Arquivo %s gerado com sucesso!\n", nomeSaida);
-}
-
 int main() {
-
     Lista minhaLista;
     inicializarlista(&minhaLista);
 
@@ -459,22 +309,17 @@ int main() {
     do {
         system("cls");
 
-        printf("\n----------Dados da Justica Federal----------\n");
-        printf("1. Concatenar arquivo\n");
-        printf("2. Calcular Meta1\n");
-        printf("3. Calcular Meta2A\n");
-        printf("4. Calcular Meta2Ant\n");
-        printf("5. Calcular Meta4A\n");
-        printf("6. Calcular Meta4B\n");  
-        printf("7. Gerar resumo de um municipio\n");
-        printf("8. Sair\n"); 
-        printf("--------------------------------------------\n");
+        printf("\n----------SISTEMA DE DADOS DA JUSTICA FEDERAL----------\n");
+        printf("1. Concatenar arquivo (Item 1)\n");
+        printf("2. Gerar Resumo (Item 2)\n");
+        printf("3. Filtrar por Municipio (Item 3)\n");
+        printf("4. Sair\n"); 
+        printf("---------------------------------------------------------\n");
         printf("Escolha uma opcao: ");
-        scanf("%d", &opcao);
-        limparBuffer();
-        
-        //Opções diferentes no menu só para testar as funções de calculo, trocar a mensagem de não implementada depois pela função real
-        //depois colocar todo o resultado do resumo em um mesmo csv (Gabe: vou fazer isso quando vcs terminarem essas funções, para não ter que ficar editando o código toda hora)
+        if(scanf("%d", &opcao) != 1){
+            opcao= -1; // Opção inválida
+        }
+        limparBuffer(); 
 
         switch(opcao) {
             case 1:
@@ -483,34 +328,16 @@ int main() {
                 system("pause");
                 break;
             case 2:
-                Meta1(&minhaLista, "resumo_meta1.csv");
+                resumoGeral(&minhaLista, "resumo_geral.csv");
                 printf("\n");
                 system("pause");
                 break;
             case 3:
-                Meta2A(&minhaLista, "resumo_meta2_a.csv");
+                filtrarMunicipio(&minhaLista);
                 printf("\n");
                 system("pause");
                 break;
             case 4:
-                Meta2Ant(&minhaLista, "resumo_meta2_ant.csv");
-                printf("\n");
-                system("pause");
-                break;  
-            case 5:
-                Meta4A(&minhaLista, "resumo_meta4_a.csv");
-                printf("\n");
-                system("pause");
-                break;
-            case 6:
-                Meta4B(&minhaLista, "resumo_meta4b.csv"); 
-                printf("\n");     
-                system("pause");
-                break;
-            case 7:
-                filtrarMunicipio(&minhaLista);
-                break;
-            case 8:
                 liberarLista(&minhaLista);
                 printf("Saindo...\n");
                 exit(1);
@@ -518,7 +345,7 @@ int main() {
                 printf("Selecione uma opcao valida!\n");
                 system("pause");
         }
-    } while(opcao != 8);
+    } while(opcao != 4);
     
     return 0;
 }
